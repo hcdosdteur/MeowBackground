@@ -1,11 +1,12 @@
 import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 
-class App {
-    _divContainer:HTMLDivElement;
-    _renderer:THREE.WebGLRenderer;
-    _scene:THREE.Scene;
-    _camera:THREE.PerspectiveCamera;
-    _cube:THREE.Mesh<THREE.BoxGeometry, THREE.Material>
+class cube {
+    _divContainer: HTMLDivElement;
+    _renderer: THREE.WebGLRenderer;
+    _scene: THREE.Scene;
+    _camera: THREE.PerspectiveCamera;
+    _cube: THREE.Mesh<THREE.BoxGeometry, THREE.Material>
     constructor() {
         const divContainer = document.querySelector<HTMLDivElement>("#webgl-container");
         this._divContainer = divContainer;
@@ -16,13 +17,19 @@ class App {
         this._renderer = renderer;
 
         const scene = new THREE.Scene();
+        const params = {
+            color: '#ffffff'
+        };
+        scene.background = new THREE.Color(params.color);
         this._scene = scene;
 
         this._setupCamera();
         this._setupLight();
         this._setupModel();
+
         window.onresize = this.resize.bind(this);
         this.resize();
+
         requestAnimationFrame(this.render.bind(this));
     }
 
@@ -35,20 +42,43 @@ class App {
             0.1,
             100
         );
-        camera.position.z = 2;
+        const controls = new OrbitControls(camera, this._renderer.domElement);
+        controls.enableDamping = true;
+        controls.autoRotate = true;
+        controls.dampingFactor = 0.05;
+        controls.screenSpacePanning = false;
+        controls.minDistance = 1;
+        controls.maxDistance = 10;
+        controls.maxPolarAngle = Math.PI;
+        camera.position.z = 5;
         this._camera = camera;
     }
 
     _setupLight() {
-        const color  = 0xffffff;
-        const intensity = 1;
+        const color = 0xffffff;
+        const intensity = 10;
         const light = new THREE.DirectionalLight(color, intensity);
         light.position.set(-1, 2, 4);
         this._scene.add(light);
     }
-    _setupModel(){
-        const geometry = new THREE.BoxGeometry(0.5,1,1);
-        const material = new THREE.MeshPhongMaterial({ color: 0x44a88 });
+
+    _setupModel() {
+        const geometry = new THREE.BoxGeometry(3, 3, 3);
+
+        const loader = new THREE.CubeTextureLoader();
+        loader.setPath('../img/');
+        const textureCube = loader.load([
+            'cat1.jpg', 'cat1.jpg',
+            'cat1.jpg', 'cat1.jpg',
+            'cat1.jpg', 'cat1.jpg'
+        ]);
+
+        // controls.mouseButtons = {
+        //     LEFT: THREE.MOUSE.ROTATE,
+        //     MIDDLE: THREE.MOUSE.DOLLY,
+        //     RIGHT: THREE.MOUSE.PAN
+        // }
+        const material = new THREE.MeshBasicMaterial({envMap: textureCube});
 
         const cube = new THREE.Mesh(geometry, material);
 
@@ -66,19 +96,28 @@ class App {
         this._renderer.setSize(width, height);
     }
 
-    render(time:number) {
+    render(time: number) {
         this._renderer.render(this._scene, this._camera);
         this.update(time);
         requestAnimationFrame(this.render.bind(this));
     }
 
-    update(time:number) {
-        time *= 0.001;
+    update(time: number) {
+        time *= 0.0001;
         this._cube.rotation.x = time;
         this._cube.rotation.y = time;
     }
 }
 
-window.onload = function() {
-    new App();
+window.onload = function () {
+    new cube();
 }
+
+const warningToHacking = document.querySelector<HTMLDivElement>("#warning");
+const body = document.querySelector<HTMLBodyElement>('body');
+body.addEventListener('mousemove', () => {
+    warningToHacking.style.display = "block";
+    setTimeout(() => {
+        warningToHacking.style.display = "none";
+    }, 3000);
+})
