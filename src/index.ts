@@ -21,6 +21,8 @@ class cube {
             color: '#ffffff'
         };
         scene.background = new THREE.Color(params.color);
+
+        // scene.background = new THREE.CubeTextureLoader()
         this._scene = scene;
 
         this._setupCamera();
@@ -65,20 +67,9 @@ class cube {
     _setupModel() {
         const geometry = new THREE.BoxGeometry(3, 3, 3);
 
-        const loader = new THREE.CubeTextureLoader();
-        loader.setPath('../img/');
-        const textureCube = loader.load([
-            'cat1.jpg', 'cat1.jpg',
-            'cat1.jpg', 'cat1.jpg',
-            'cat1.jpg', 'cat1.jpg'
-        ]);
+        const textureCube = new THREE.TextureLoader().load( '/img/cat1.jpg' );
 
-        // controls.mouseButtons = {
-        //     LEFT: THREE.MOUSE.ROTATE,
-        //     MIDDLE: THREE.MOUSE.DOLLY,
-        //     RIGHT: THREE.MOUSE.PAN
-        // }
-        const material = new THREE.MeshBasicMaterial({envMap: textureCube});
+        const material = new THREE.MeshBasicMaterial({ map: textureCube });
 
         const cube = new THREE.Mesh(geometry, material);
 
@@ -113,11 +104,8 @@ window.onload = function () {
     new cube();
 }
 
-const warningToHacking = document.querySelector<HTMLDivElement>("#warning");
-const body = document.querySelector<HTMLBodyElement>('body');
-body.addEventListener('mousemove', () => {
-    warningToHacking.style.display = "block";
-    setTimeout(() => {
-        warningToHacking.style.display = "none";
-    }, 3000);
-})
+// const warningToHacking = document.querySelector<HTMLDivElement>("#warning");
+// window.addEventListener('mousemove', () => {
+//     warningToHacking.style.display = "block";
+    
+// })
